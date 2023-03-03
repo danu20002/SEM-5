@@ -1,0 +1,13 @@
+import java.io.*;
+import java.net.*;
+
+public class client {
+    public static void main(String[] args) throws IOException {
+        byte b[]=new byte[20002];
+         Socket socket=new Socket("localhost",4999);
+            InputStream inputStream= socket.getInputStream();
+            FileOutputStream fr=new FileOutputStream("E:\\damnappamankru.txt");
+            inputStream.read(b,0,b.length);
+            fr.write(b,0,b.length);
+           
+    }
