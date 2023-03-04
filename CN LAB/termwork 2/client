@@ -9,20 +9,21 @@ public class udp_client {
         DatagramSocket clientSocket = new DatagramSocket();
         Scanner sc=new Scanner(System.in);
         InetAddress IPAddress = InetAddress.getByName("localhost");
-while(true) {
-    String message = sc.next();
-    byte[] sendData = message.getBytes();
-    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
-    clientSocket.send(sendPacket);
+        while(true) {
+            String message = sc.nextLine();
+            byte[] sendData = message.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+            clientSocket.send(sendPacket);
 
-    byte[] receiveData = new byte[10024];
-    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-    clientSocket.receive(receivePacket);
+            byte[] receiveData = new byte[10024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            clientSocket.receive(receivePacket);
 
-    String responseMessage = new String(receivePacket.getData());
-    System.out.println("Received response from server: " + responseMessage);
+            String responseMessage = new String(receivePacket.getData());
+            System.out.println("Received response from server: " + responseMessage);
 
-    clientSocket.close();
-}
+
+        }
+
     }
 }
