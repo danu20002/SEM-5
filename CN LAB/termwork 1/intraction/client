@@ -1,36 +1,33 @@
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
-public class client {
-    public static void main(String[] args) throws IOException {
-        Socket clientSocket = null;
-        PrintWriter out = null;
-        BufferedReader in = null;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
-        try {
-            clientSocket = new Socket("localhost", 5000);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.err.println("Unknown host: localhost");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Could not connect to server: localhost");
-            System.exit(1);
+public class new_client {
+    public static void main(String args[]) throws IOException {
+        Socket socket=null;
+        PrintWriter printWriter=null;
+        BufferedReader bufferedReader=null;
+        try{
+            socket=new Socket("localhost",4556);
+            printWriter=new PrintWriter(socket.getOutputStream(),true);
+            bufferedReader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        }catch (UnknownHostException e){
+            System.out.println("Host not found");
+        }catch (IOException d){
+            System.out.println("port not found or already in use");
         }
-
-        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-        String userInput;
-
-        while ((userInput = stdIn.readLine()) != null) {
-            out.println(userInput);
-            System.out.println("Server response: " + in.readLine());
+        BufferedReader inputtaking=new BufferedReader(new InputStreamReader(System.in));
+        String clintmessge;
+        while ((clintmessge=inputtaking.readLine())!=null){
+            printWriter.println(clintmessge);
+            System.out.println("server responded::"+bufferedReader.readLine());
         }
-
-        out.close();
-        in.close();
-        stdIn.close();
-        clientSocket.close();
+        socket.close();
+        bufferedReader.close();
+        printWriter.close();
     }
 }
-
