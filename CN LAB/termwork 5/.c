@@ -1,100 +1,138 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <openssl/rsa.h>
-#include <openssl/pem.h>
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<math.h>
+#include<string.h>
 
-#define KEY_LENGTH  2048
-
-
-void generate_key_pair() {
-    RSA *keypair = RSA_new();
-    BIGNUM *bne = BN_new();
-    int ret = 0;
-    unsigned long e = RSA_F4;
-
-    ret = BN_set_word(bne, e);
-    if (ret != 1) {
-        printf("Failed to set exponent\n");
-        exit(EXIT_FAILURE);
+long int p, q, n, t, flag, e[100], d[100], temp[100], j, m[100], en[100], i;
+char msg[100];
+int prime(long int);
+void ce();
+long int cd(long int);
+void encrypt();
+void decrypt();
+void main()
+{
+    printf("\nENTER FIRST PRIME NUMBER\n");
+    scanf("%d", &p);
+    flag = prime(p);
+    if (flag == 0)
+    {
+        printf("\nWRONG INPUT\n");
+        getch();
+        exit(1);
     }
-
-    ret = RSA_generate_key_ex(keypair, KEY_LENGTH, bne, NULL);
-    if (ret != 1) {
-        printf("Failed to generate RSA key pair\n");
-        exit(EXIT_FAILURE);
+    printf("\nENTER ANOTHER PRIME NUMBER\n");
+    scanf("%d", &q);
+    flag = prime(q);
+    if (flag == 0 || p == q)
+    {
+        printf("\nWRONG INPUT\n");
+        getch();
+        exit(1);
     }
-
-    FILE *public_key_file = fopen("public_key.pem", "w");
-    PEM_write_RSA_PUBKEY(public_key_file, keypair);
-    fclose(public_key_file);
-
-    FILE *private_key_file = fopen("private_key.pem", "w");
-    PEM_write_RSAPrivateKey(private_key_file, keypair, NULL, NULL, 0, NULL, NULL);
-    fclose(private_key_file);
-
-    RSA_free(keypair);
-    BN_free(bne);
+    printf("\nENTER MESSAGE\n");
+    fflush(stdin);
+    scanf("%s", msg);
+    for (i = 0; msg[i] != NULL; i++)
+        m[i] = msg[i];
+    n = p * q;
+    t = (p - 1) * (q - 1);
+    ce();
+    printf("\nPOSSIBLE VALUES OF e AND d ARE\n");
+    for (i = 0; i < j - 1; i++)
+        printf("\n%ld\t%ld", e[i], d[i]);
+    encrypt();
+    decrypt();
 }
-
-
-void encrypt_file(char *input_file_path, char *output_file_path) {
-    RSA *public_key = NULL;
-    FILE *input_file = NULL;
-    FILE *output_file = NULL;
-    unsigned char input_data[KEY_LENGTH / 8] = {0};
-    unsigned char encrypted_data[KEY_LENGTH / 8] = {0};
-    int bytes_read = 0;
-    int encrypted_data_len = 0;
-
-    // Read public key from file
-    FILE *public_key_file = fopen("public_key.pem", "r");
-    if (!public_key_file) {
-        printf("Failed to open public key file\n");
-        exit(EXIT_FAILURE);
+int prime(long int pr)
+{
+    int i;
+    j = sqrt(pr);
+    for (i = 2; i <= j; i++)
+    {
+        if (pr % i == 0)
+            return 0;
     }
-
-    public_key = PEM_read_RSA_PUBKEY(public_key_file, NULL, NULL, NULL);
-    fclose(public_key_file);
-
-    if (!public_key) {
-        printf("Failed to read public key\n");
-        exit(EXIT_FAILURE);
-    }
-
-   
-    input_file = fopen(input_file_path, "rb");
-    if (!input_file) {
-        printf("Failed to open input file\n");
-        exit(EXIT_FAILURE);
-    }
-
-    output_file = fopen(output_file_path, "wb");
-    if (!output_file) {
-        printf("Failed to open output file\n");
-        exit(EXIT_FAILURE);
-    }
-
-   
-    while ((bytes_read = fread(input_data, 1, sizeof(input_data), input_file)) > 0) {
-        encrypted_data_len = RSA_public_encrypt(bytes_read, input_data, encrypted_data, public_key, RSA_PKCS1_PADDING);
-        if (encrypted_data_len == -1) {
-            printf("Failed to encrypt input data\n");
-            exit(EXIT_FAILURE);
+    return 1;
+}
+void ce()
+{
+    int k;
+    k = 0;
+    for (i = 2; i < t; i++)
+    {
+        if (t % i == 0)
+            continue;
+        flag = prime(i);
+        if (flag == 1 && i != p && i != q)
+        {
+            e[k] = i;
+            flag = cd(e[k]);
+            if (flag > 0)
+            {
+                d[k] = flag;
+                k++;
+            }
+            if (k == 99)
+                break;
         }
-        fwrite(encrypted_data, 1, encrypted_data_len, output_file);
     }
-
-   
-    fclose(input_file);
-    fclose(output_file);
-    RSA_free(public_key);
 }
-
-
-void decrypt_file(char *input_file_path, char *output_file_path) {
-    RSA *private_key = NULL;
-    FILE *input_file = NULL;
-    FILE *output_file = NULL;
-    unsigned char input_data[KEY_LENGTH / 8] = {0};
-    unsigned char decrypted
+long int cd(long int x)
+{
+    long int k = 1;
+    while (1)
+    {
+        k = k + t;
+        if (k % x == 0)
+            return (k / x);
+    }
+}
+void encrypt()
+{
+    long int pt, ct, key = e[0], k, len;
+    i = 0;
+    len = strlen(msg);
+    while (i != len)
+    {
+        pt = m[i];
+        pt = pt - 96;
+        k = 1;
+        for (j = 0; j < key; j++)
+        {
+            k = k * pt;
+            k = k % n;
+        }
+        temp[i] = k;
+        ct = k + 96;
+        en[i] = ct;
+        i++;
+    }
+    en[i] = -1;
+    printf("\nTHE ENCRYPTED MESSAGE IS\n");
+    for (i = 0; en[i] != -1; i++)
+        printf("%c", en[i]);
+}
+void decrypt()
+{
+    long int pt, ct, key = d[0], k;
+    i = 0;
+    while (en[i] != -1)
+    {
+        ct = temp[i];
+        k = 1;
+        for (j = 0; j < key; j++)
+        {
+            k = k * ct;
+            k = k % n;
+        }
+        pt = k + 96;
+        m[i] = pt;
+        i++;
+    }
+    m[i] = -1;
+    printf("\nTHE DECRYPTED MESSAGE IS\n");
+    for (i = 0; m[i] != -1; i++)
+        printf("%c", m[i]);
+}
