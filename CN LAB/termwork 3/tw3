@@ -5,6 +5,7 @@ struct node
 	unsigned from[20];
 }rt[10];
 int main()
+
 {
 	int dmat[20][20];
 	int n,i,j,k,count=0;
